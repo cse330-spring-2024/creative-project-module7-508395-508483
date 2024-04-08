@@ -1,0 +1,18 @@
+Rubric turned in on time (5 points)
+
+Languages/Frameworks used (30 points)
+10 - Learned/Used React.js frontend
+10 - Learned/Used Express backend
+10 - Learned/Used MongoDB Database
+
+Functionality (50 points)
+10 Users can register, login, and logout
+10 Users can view the ecoMap and filter locations via google maps and places API integration
+10 Users can donate via stripe integration
+10 Logged in users can leave reviews on their experiences, comment on posts, and message one another
+10 Database contains users, reviews, ratings, and message history with the necessary columns and column types to maintain the above functionality
+
+Best Practices (5 points)
+3 Code is readable and well formatted
+2 All pages pass the html validator
+Creative Portion (10 points)
