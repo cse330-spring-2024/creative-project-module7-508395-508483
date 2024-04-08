@@ -17,3 +17,5 @@ Best Practices (5 points)
 2 All pages pass the html validator
 Creative Portion (10 points)
 10 Framework for a points system for ecoChallenges
+
+Approved by Jeff Koonce
