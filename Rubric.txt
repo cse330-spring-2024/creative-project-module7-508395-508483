@@ -8,7 +8,7 @@ Languages/Frameworks used (30 points)
 Functionality (50 points)
 10 Users can register, login, and logout
 10 Users can view the ecoMap and filter locations via google maps and places API integration
-10 Users can donate via stripe integration
+10 Users can search for and mark a desired place
 10 Logged in users can leave reviews on their experiences, comment on posts, and message one another
 10 Database contains users, reviews, ratings, and message history with the necessary columns and column types to maintain the above functionality
 
