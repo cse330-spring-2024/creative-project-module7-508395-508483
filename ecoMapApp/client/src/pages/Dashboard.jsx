@@ -3,14 +3,31 @@ import { useContext, useState, useMemo } from "react";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import React from 'react';
+import{Marker, GoogleMap, useLoadScript } from "@react-google-maps/api"
+import usePlacesAutoComplete,{
+    getGeocode,
+    getLatLng,
+} from "use-places-autocomplete";
+import {
+    Combobox, 
+    ComboboxPopover,
+    ComboboxList,
+    ComboboxOption,
+    ComboboxInput,
+} from "@reach/combobox";
+import "../styles/combobox-styles.css";
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow,} from '@vis.gl/react-google-maps';
 
 export default function ecoMap() {
     
-    // const {isLoaded} = UseLoadScript({
-    //     googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
-    //     libraries: ["places"],
-    // });
+    useLoadScript({
+             googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
+             libraries: ["places"],
+         });
+        
+
+    const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
+     const [selected, setSelected] = useState(null);
 
     const { user } = useContext(UserContext);
    
@@ -65,11 +82,10 @@ export default function ecoMap() {
       <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY&loading=async&libraries=places&callback=initMap">
       </script>
-{/* 
-      <div className="places-container">
-        <PlacesAutoComplete setSelected = {setSelected} />
-      </div>
-        {selected && <Marker position={selected}/>} */}
+
+       <div className="places-container">
+         <PlacesAutoComplete setSelected = {setSelected} />
+       </div>
 
       <div style={{ display: 'flex', height: '100vh' }}> 
         {/* Left Content */}
@@ -82,6 +98,7 @@ export default function ecoMap() {
         {/* Map */}
         <div style={{ flex: 2 }}>
         <Map zoom={17.5} center={position} mapId={map_ID} gestureHandling={"none"} style={{ position: 'absolute', top: 100, bottom: 0, left: 550, width: '60%', height: '87.5%' }}>
+            {selected && <AdvancedMarker position={selected}/>} 
           <AdvancedMarker position={positionHurd} onClick={() => setOpenHurd(true)}>
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
@@ -243,18 +260,54 @@ export default function ecoMap() {
   );
 }
 
-// const PlacesAutoComplete = ({ setSelected }) => {
-//     const {
-//         ready,
-//         value,
-//         setValue,
-//         suggestions: {status, data},
-//         clearSuggestions,
-//     } =  usePlacesAutoComplete();
+// function Map2(){
+//     const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
+//     const [selected, setSelected] = useState(null);
+// }
+
+// <div className="places-container">
+//         <PlacesAutoComplete setSelected = {setSelected} />
+//       </div>
+//       <GoogleMap>       
+//          {selected && <Marker position={selected}/>} 
+//       </GoogleMap>
+
+const PlacesAutoComplete = ({ setSelected }) => {
+    const {
+        ready,
+        value,
+        setValue,
+        suggestions: {status, data},
+        clearSuggestions,
+    } =  usePlacesAutoComplete();
     
-//     return (
-//     <Combobox>
-//         <ComboboxInput value={value}/>
-//     </Combobox>
-//     );
-// };
+    const handleSelect = async(address) => {
+        setValue(address, false);
+        clearSuggestions();
+
+        const results = await getGeocode({ address });
+        const { lat, lng } = getLatLng(results[0]);
+        setSelected({lat, lng})
+    };
+
+    return (
+    <Combobox onSelect={handleSelect}>
+        <ComboboxInput
+        value={value} 
+        onChange={(e) => setValue(e.target.value)} 
+        disabled={!ready}
+        className="combobox-input" 
+        placeholder="Search an Address"/>
+        <ComboboxPopover>
+            <ComboboxList>
+                {status === "OK" && data.map(({place_id, description}) => <ComboboxOption key= {place_id} value = {description}/>)}
+            </ComboboxList>
+        </ComboboxPopover>
+    </Combobox>
+    );
+};
+
+// const {isLoaded} = useLoadScript({
+//     googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
+//     libraries: ["places"],
+// });
