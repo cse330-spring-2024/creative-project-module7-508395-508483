@@ -11,6 +11,7 @@ export default function Register(){
         password: '',
     })
     
+    //register user function and checks server side
     const registerUser = async (e) => {
         e.preventDefault();
         const {name, email, password} = data
@@ -32,6 +33,7 @@ export default function Register(){
 
     return (
         <div>
+            {/* form for registering  */}
             <form onSubmit={registerUser}>
                 <label>Username </label>
                 <input type= "text" placeholder='enter name...' value={data.name} onChange={(e) => setData({...data, name: e.target.value})}/>

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose
 
+//model for location (reviews)
 const locationSchema = new Schema({
     reviewer: String,
     name: String, 

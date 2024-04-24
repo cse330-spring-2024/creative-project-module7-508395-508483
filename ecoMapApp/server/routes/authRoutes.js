@@ -11,6 +11,7 @@ router.use(
     })
 )
 
+//routes
 router.get('/', test)
 router.post('/register', resgisterUser)
 router.post('/login', loginUser)

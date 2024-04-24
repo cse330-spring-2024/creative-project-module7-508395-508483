@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose
 
+//model for comments
 const commentSchema = new Schema({
     user: String,
     postTo: String, 

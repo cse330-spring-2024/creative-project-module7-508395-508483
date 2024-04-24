@@ -5,11 +5,12 @@ import axios from 'axios'
 import {toast} from 'react-hot-toast'
 import React from 'react';
 
-
+//login function
 export default function Login(){
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
 
+    // intial set up
     useEffect(() => {
         if (user) {
             navigate('/dashboard');
@@ -20,6 +21,7 @@ export default function Login(){
         password: '',
     })
 
+    //login user and call server side
     const loginUser = async (e) => {
         e.preventDefault()
         const {email, password} = data
@@ -33,7 +35,7 @@ export default function Login(){
             } else {
                 setData({});
                 navigate('/Dashboard')
-                window.location.reload(); // Refresh the page
+                window.location.reload();
             }
         } catch (error){
             
@@ -42,6 +44,7 @@ export default function Login(){
 
     return (
         <div>
+            {/* form for logging in a user */}
             <form onSubmit={loginUser}>
             <label> Email </label>
                 <input type= "email" placeholder='enter email...' value={data.email} onChange={(e) => setData({...data, email: e.target.value})}/>

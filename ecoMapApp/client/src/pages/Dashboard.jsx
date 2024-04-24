@@ -19,6 +19,7 @@ import {
 import "../styles/combobox-styles.css";
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow,} from '@vis.gl/react-google-maps';
 
+
 export default function ecoMap() {
   const [markerColor, setMarkerColor] = useState("#605DE9");
 
@@ -32,7 +33,7 @@ export default function ecoMap() {
     });
     const callbackName = "YOUR_CALL_BACKNAME"
 
-    const [showReviews, setShowReviews] = useState(false); //thithitihtihjtihjtihjtjhtihjthithj
+    const [showReviews, setShowReviews] = useState(false); 
     const toggleShowReviews = () => {
         setShowReviews(!showReviews);
     };
@@ -42,21 +43,20 @@ export default function ecoMap() {
         setShowComments(!showComments);
     };
         
-    //const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
      const [selected, setSelected] = useState(null);
 
+     //check if logged in
     const { user } = useContext(UserContext);
-   
     if (user == null) {
-        // If not logged in, redirect to the login page
         return <Navigate to="/login" />;
     } 
 
-    const [data, setData] = useState({}); // Define setData instead of setdata
+    //get locations (reviews)
+    const [data, setData] = useState({}); 
     const fetchLocations = () => {
         axios.get('/getLocations')
             .then((response) => {
-                setData(response.data); // Use setData instead of setdata
+                setData(response.data); 
                 console.log(response.data)
             })
             .catch(() => {
@@ -65,9 +65,10 @@ export default function ecoMap() {
     };
     console.log(data);
     useEffect(() => {
-        fetchLocations(); // Call fetchLocations when the component mounts
+        fetchLocations(); 
     }, []); 
     
+    //fetch comments to display
     const [comments, cSetData] = useState({});
     const fetchComments = () => {
       axios.get('/get-comments')
@@ -82,37 +83,29 @@ export default function ecoMap() {
     useEffect(() => {
       fetchComments();
     }, []);
-    //locations not getting set but why
-    // const[locations, setLocation] = useState([]);
-    // useEffect(()=> {
-    //   axios.get('http://localhost:5173/getLocation')
-    //   console.log("locations:", locations.data )
-    //   .then(locations => setLocation(locations.data))
-    //   .catch(err => console.log(err))
-    // }, [])
-    // console.log("locations:", locations);
 
-  console.log("hi");
+    //Google maps api stuff (locations for South 40 dorms)
   const position = { lat: 38.6446, lng: -90.31382 };
-  const positionHurd = { lat: 38.64338126245161, lng: -90.3129583224726 }; //1
-  const positionMudd = {lat:38.643456099294596 , lng: -90.31398650189014 }; //2
-  const positionPark = {lat:38.643561185354606 , lng: -90.31492925404241 }; //3 
-  const positionWheeler = {lat: 38.64377559418187,lng: -90.31567802286224}; //4
-  const positionDanforth = {lat: 38.6446477216334,lng: -90.31546059424431}; //5
-  const positionShanedling = {lat: 38.64500462881444,lng: -90.31577015363958}; //6
-  const positionDauten = {lat: 38.64527806456551,lng: -90.31547902040033}; //7
-  const positionRutledge = {lat: 38.64508809878885,lng: -90.31519157238905}; //8
-  const positionLee = {lat: 38.64535289943016,lng:-90.31475302991032 }; //9
-  const positionBeaumont = {lat: 38.644883741102326,lng: -90.31459825021756}; //10 
-  const positionUmrath = {lat: 38.644901010788445, lng: -90.31373590618372}; //11
-  const positionZetcher = {lat:38.644935550144396 , lng:-90.31298780431293 }; //12
-  const positionEliot = {lat:38.644431849494 , lng: -90.31293989631236}; //13
-  const positionLiggetKoenig = {lat: 38.64468513940617, lng:-90.31184538273484 }; //14 
-  const positionDardick = {lat:38.64577600278223 , lng:-90.31537214870272  }; //15
-  const positionNemerov = {lat: 38.64568000868689, lng: -90.31432776834215 }; //16
-  const positionLien = {lat:38.64557639163376 , lng: -90.31321851384197}; //17
+  const positionHurd = { lat: 38.64338126245161, lng: -90.3129583224726 }; 
+  const positionMudd = {lat:38.643456099294596 , lng: -90.31398650189014 }; 
+  const positionPark = {lat:38.643561185354606 , lng: -90.31492925404241 }; 
+  const positionWheeler = {lat: 38.64377559418187,lng: -90.31567802286224};
+  const positionDanforth = {lat: 38.6446477216334,lng: -90.31546059424431}; 
+  const positionShanedling = {lat: 38.64500462881444,lng: -90.31577015363958}; 
+  const positionDauten = {lat: 38.64527806456551,lng: -90.31547902040033}; 
+  const positionRutledge = {lat: 38.64508809878885,lng: -90.31519157238905}; 
+  const positionLee = {lat: 38.64535289943016,lng:-90.31475302991032 }; 
+  const positionBeaumont = {lat: 38.644883741102326,lng: -90.31459825021756}; 
+  const positionUmrath = {lat: 38.644901010788445, lng: -90.31373590618372}; 
+  const positionZetcher = {lat:38.644935550144396 , lng:-90.31298780431293 }; 
+  const positionEliot = {lat:38.644431849494 , lng: -90.31293989631236}; 
+  const positionLiggetKoenig = {lat: 38.64468513940617, lng:-90.31184538273484 }; 
+  const positionDardick = {lat:38.64577600278223 , lng:-90.31537214870272  }; 
+  const positionNemerov = {lat: 38.64568000868689, lng: -90.31432776834215 }; 
+  const positionLien = {lat:38.64557639163376 , lng: -90.31321851384197}; 
   const map_ID = "82a79b40cfdc5f3b";
   
+  //settings states for info windows
   const [openHurd, setOpenHurd] = useState(false);
   const [openMudd, setOpenMudd] = useState(false);
   const [openPark, setOpenPark] = useState(false);
@@ -132,6 +125,7 @@ export default function ecoMap() {
   const [openLien, setOpenLien] = useState(false);
   return (
     
+    //loading in api key
     <APIProvider apiKey="AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY">
             <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY&libraries=places"/>
             <script
@@ -146,7 +140,6 @@ export default function ecoMap() {
       <div style={{ display: 'flex', height: '100vh' }}> 
         {/* Left Content */}
         <div style={{ position: 'absolute', top: 100, bottom: 0, left: 210.5, width: '300px', backgroundColor: '#605DE9', padding: '20px', overflowY: 'auto' }}>
-          {/* Add your content here */}
           <h1>Eco Map</h1>
           <p>This is the WashU South 40 EcoMap!</p><br/>
           <h2>How To Use:</h2>
@@ -162,6 +155,8 @@ export default function ecoMap() {
         
         <div>
         <div>
+
+          {/* toggle displays */}
   <button onClick={toggleShowReviews} style={{ marginTop: '750px' }}>Toggle Reviews</button>
   <button onClick={toggleComments} style={{ marginTop: '750px', marginLeft: '10px' }}>Toggle Comments</button>
   </div>
@@ -182,14 +177,14 @@ export default function ecoMap() {
   <div style={{ position: 'absolute', top: 950, left: 230, right: 230, backgroundColor: '#3C39A3', padding: '10px', zIndex: 1 }}>
     <CommentDisplay comments={comments} />
   </div>
-)}
-
+)}        
+            {/* filter buttons */}
             <button onClick={() => changeMarkerColor("green")}>RecycleFilter</button>
             <button onClick={() => changeMarkerColor("#605DE9")}>UndoFilter</button>
 
         </div>
 
-        {/* Map */}
+        {/* Map with markers*/}
         <div style={{ flex: 2 }}>
         <Map zoom={17.5} center={position} mapId={map_ID} gestureHandling={"none"} style={{ position: 'absolute', top: 100, bottom: 0, left: 550, width: '60%', height: '87.5%' }}>
             {selected && <AdvancedMarker position={selected}/>} 
@@ -245,6 +240,7 @@ export default function ecoMap() {
               <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
 
+            {/* info window functionality */}
             {openHurd && (
             <InfoWindow position={positionHurd} onCloseClick={() => setOpenHurd(false)}>
               <p style={{ color: 'blue' }}>Hurd House<br/>Recycles</p>
@@ -328,7 +324,6 @@ export default function ecoMap() {
             <p style={{ color: 'blue' }}>Lien House<br/>Recycles</p>
           </InfoWindow>
         )}
-            {/* <LocationReviews locations={data} /> */}
           </Map>
         </div>
       </div>
@@ -336,6 +331,7 @@ export default function ecoMap() {
   );
 }
 
+//auto complete set up
 const PlacesAutoComplete = ({ setSelected }) => {
     const {
         ready,
@@ -355,6 +351,7 @@ const PlacesAutoComplete = ({ setSelected }) => {
     };
 
     return (
+      // combobox for search with autoselect and marker placing functionality
     <Combobox onSelect={handleSelect}>
         <ComboboxInput
         value={value} 
@@ -371,6 +368,7 @@ const PlacesAutoComplete = ({ setSelected }) => {
     );
 };
 
+//function to display comments
   function CommentDisplay({ comments }) {
     return (
         <div className='w-100 vh-100 d-flex justify-content-center align-items-center '>
@@ -398,7 +396,7 @@ const PlacesAutoComplete = ({ setSelected }) => {
     );
 }
 
-
+//function to display location reviews
 function LocationReviews({ locations }) {
     return (
         <div className='w-100 vh-100 d-flex justify-contentcenter-center align-items-center '>

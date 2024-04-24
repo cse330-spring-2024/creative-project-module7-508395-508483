@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from 'react';
 
 export const UserContext = createContext({})
 
-export function UserContextProvider({children}){
+export function UserContextProvider({children}){ //Gets profile and user info
     const [user, setUser] = useState(null);
     useEffect(() => {
         if(!user){
