@@ -14,7 +14,7 @@ const test = (req, res) => {
 //register endpoint
 const resgisterUser = async (req, res) => {
     try {
-        const {name, email, password} = req.body;
+        const {name, email, password, ecoScore} = req.body;
         //check if name is entered
         if (!name){
             return res.json({
@@ -46,6 +46,7 @@ const resgisterUser = async (req, res) => {
             name, 
             email, 
             password: hashedPassword,
+            ecoScore: 0
         });
 
         return res.json(user)
@@ -74,7 +75,7 @@ const loginUser = async (req, res) => {
         //check if password match
         const match = await comparePassword(password, user.password)
         if (match){
-         jwt.sign({email: user.email, id: user._id, name: user.name}, process.env.JWT_SECRET, {}, (err,token) => {
+         jwt.sign({email: user.email, id: user._id, name: user.name, ecoScore: user.ecoScore}, process.env.JWT_SECRET, {}, (err,token) => {
             if(err) throw err;
             res.cookie('token', token).json(user)
          })            
@@ -228,6 +229,25 @@ const getComments = async (req, res) => {
     res.status(200).json(comments)
 }
 
+const incrementScore = async (req, res) => {
+    try{
+    const { email } = req.body;
+    console.log("in authconroller");
+    console.log(email);
+    const user = await User.findOne({email})
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    user.ecoScore += 1;
+    console.log("+1");
+    await user.save();
+    return res.status(200).json({ user, updatedScore: user.ecoScore });
+    } catch (error) {
+        console.error('Error incrementing score:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     test,
     resgisterUser,
@@ -239,5 +259,6 @@ module.exports = {
     sendMessage,
     getMessages,
     postComment,
-    getComments
+    getComments,
+    incrementScore
 };

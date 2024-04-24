@@ -13,6 +13,20 @@ export default function Home() {
     const [showMessageForm, setShowMessageForm] = useState(false); // State to control the visibility of the message form
     const [showMessageTable, setShowMessageTable] = useState(false);
     const [showCommentForm, setCommentForm] = useState(false);
+
+    const [score, setScore] = useState(0);
+    const incrementScore = async () => {
+        try {
+            console.log(user.email)
+            console.log(user.ecoScore)
+            const response = await axios.post('/increment-score', { email: user.email });
+            console.log(response.data.updatedScore);
+            setScore(response.data.updatedScore);
+        } catch (error) {
+            console.error('Error incrementing score:', error);
+        }
+    };
+
     const [messages, setMessages] = useState([]);
     const fetchMessages = async () => {
         try {
@@ -136,10 +150,10 @@ const [commentData, setCommentData] = useState({
     return (
     
         <div>
-            <div style={{ position: 'absolute', top: 0, right: 0, margin: '20px', fontSize: '18px' }}>
-                    Score: 0
-                </div>
-            <h1>Home</h1>
+           {/* Button to increment the score */}
+
+{/* Display the user's score */}
+<p style={{ position: 'absolute', top: 0, right: 0, margin: '20px', fontSize: '18px' }}>Score: {score}</p>            <h1>Home</h1>
             {!!user && (<h2>Hi {user.name}!</h2>)}
 
             {/* Button to trigger the redirection */}
@@ -147,7 +161,14 @@ const [commentData, setCommentData] = useState({
             <button onClick={handleLogout}>Logout</button>
             <button onClick={toggleReviewForm}>Leave a Review & Rating</button>
             <button onClick={openMessageForm}>Send Message</button>
-            <button onClick={toggleCommentForm}>Post a Comment</button>
+            <button onClick={toggleCommentForm}>Post a Comment</button> <br/><br/><br/>
+            <h2>ECO CHALLENGES</h2>
+            <button onClick={incrementScore}>Planted a Tree +1</button>
+            <button onClick={incrementScore}>Used a Recyclable bag +1</button>
+            <button onClick={incrementScore}>Made a Pro Environment poster +1</button>
+
+
+
            
             {showReviewForm && (
                <form onSubmit={registerReview}>
