@@ -1,9 +1,10 @@
 "use client";
-import { useContext, useState, useMemo } from "react";
+import { useEffect,useContext, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import React from 'react';
-import{Marker, GoogleMap, useLoadScript } from "@react-google-maps/api"
+import axios from 'axios';
+import{ useLoadScript } from "@react-google-maps/api"
 import usePlacesAutoComplete,{
     getGeocode,
     getLatLng,
@@ -19,14 +20,29 @@ import "../styles/combobox-styles.css";
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow,} from '@vis.gl/react-google-maps';
 
 export default function ecoMap() {
+  const [markerColor, setMarkerColor] = useState("#605DE9");
+
+  const changeMarkerColor = (color) => {
+    setMarkerColor(color);
+  };
     
     useLoadScript({
-             googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
-             libraries: ["places"],
-         });
-        
+        googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
+        libraries: ["places"],
+    });
+    const callbackName = "YOUR_CALL_BACKNAME"
 
-    const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
+    const [showReviews, setShowReviews] = useState(false); //thithitihtihjtihjtihjtjhtihjthithj
+    const toggleShowReviews = () => {
+        setShowReviews(!showReviews);
+    };
+
+    const [showComments, setShowComments] = useState(false); 
+    const toggleComments = () => {
+        setShowComments(!showComments);
+    };
+        
+    //const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
      const [selected, setSelected] = useState(null);
 
     const { user } = useContext(UserContext);
@@ -35,6 +51,46 @@ export default function ecoMap() {
         // If not logged in, redirect to the login page
         return <Navigate to="/login" />;
     } 
+
+    const [data, setData] = useState({}); // Define setData instead of setdata
+    const fetchLocations = () => {
+        axios.get('/getLocations')
+            .then((response) => {
+                setData(response.data); // Use setData instead of setdata
+                console.log(response.data)
+            })
+            .catch(() => {
+                console.log("Error fetching locations");
+            });
+    };
+    console.log(data);
+    useEffect(() => {
+        fetchLocations(); // Call fetchLocations when the component mounts
+    }, []); 
+    
+    const [comments, cSetData] = useState({});
+    const fetchComments = () => {
+      axios.get('/get-comments')
+        .then ((response)=> {
+          cSetData(response.data);
+          console.log(response.data)
+        })
+        .catch((error) => {
+          console.log("Error fetching comments", error);
+        });
+    };
+    useEffect(() => {
+      fetchComments();
+    }, []);
+    //locations not getting set but why
+    // const[locations, setLocation] = useState([]);
+    // useEffect(()=> {
+    //   axios.get('http://localhost:5173/getLocation')
+    //   console.log("locations:", locations.data )
+    //   .then(locations => setLocation(locations.data))
+    //   .catch(err => console.log(err))
+    // }, [])
+    // console.log("locations:", locations);
 
   console.log("hi");
   const position = { lat: 38.6446, lng: -90.31382 };
@@ -74,14 +130,14 @@ export default function ecoMap() {
   const [openDardick, setOpenDardick] = useState(false);
   const [openNemerov, setOpenNemerov] = useState(false);
   const [openLien, setOpenLien] = useState(false);
-
   return (
     
     <APIProvider apiKey="AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY">
             <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY&libraries=places"/>
-      <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY&loading=async&libraries=places&callback=initMap">
-      </script>
+            <script
+  defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY&libraries=places&callback=YOUR_CALL_BACKNAME"
+></script>
 
        <div className="places-container">
          <PlacesAutoComplete setSelected = {setSelected} />
@@ -91,19 +147,57 @@ export default function ecoMap() {
         {/* Left Content */}
         <div style={{ position: 'absolute', top: 100, bottom: 0, left: 210.5, width: '300px', backgroundColor: '#605DE9', padding: '20px', overflowY: 'auto' }}>
           {/* Add your content here */}
-          <h2>Eco Map</h2>
-          <p>This is the echo Map.</p>
+          <h1>Eco Map</h1>
+          <p>This is the WashU South 40 EcoMap!</p><br/>
+          <h2>How To Use:</h2>
+          <p>-Standard Google Maps Features <br/>
+             -Click on a Marker to see Recycle Status <br/>
+             -Toggle Reviews at Bottom of Screen <br/>
+             -Toggle Comments at Bottom of Screen <br/>
+             -Apply Recycling filter at Bottom of Screen <br/>
+             -Search/Mark Address with Combobox at the Top<br/>
+             -Go to Home Page to leave Rating and Reviews, logout, comments, and msg<br/>
+          </p>
         </div>
         
+        <div>
+        <div>
+  <button onClick={toggleShowReviews} style={{ marginTop: '750px' }}>Toggle Reviews</button>
+  <button onClick={toggleComments} style={{ marginTop: '750px', marginLeft: '10px' }}>Toggle Comments</button>
+  </div>
+  {showReviews && showComments && (
+  <div style={{ position: 'absolute', top: 950, left: 230, right: 230, backgroundColor: '#605DE9', padding: '10px', zIndex: 1 }}>
+    <LocationReviews locations={data} />
+    <div style={{ marginTop: '10px', backgroundColor: '#3C39A3', padding: '10px' }}>
+      <CommentDisplay comments={comments} />
+    </div>
+  </div>
+)}
+{showReviews && !showComments&&(
+  <div style={{ position: 'absolute', top: 950, left: 230, right: 230, backgroundColor: '#605DE9', padding: '10px', zIndex: 1 }}>
+    <LocationReviews locations={data} />
+  </div>
+)}
+{showComments && !showReviews&&(
+  <div style={{ position: 'absolute', top: 950, left: 230, right: 230, backgroundColor: '#3C39A3', padding: '10px', zIndex: 1 }}>
+    <CommentDisplay comments={comments} />
+  </div>
+)}
+
+            <button onClick={() => changeMarkerColor("green")}>RecycleFilter</button>
+            <button onClick={() => changeMarkerColor("#605DE9")}>UndoFilter</button>
+
+        </div>
+
         {/* Map */}
         <div style={{ flex: 2 }}>
         <Map zoom={17.5} center={position} mapId={map_ID} gestureHandling={"none"} style={{ position: 'absolute', top: 100, bottom: 0, left: 550, width: '60%', height: '87.5%' }}>
             {selected && <AdvancedMarker position={selected}/>} 
-          <AdvancedMarker position={positionHurd} onClick={() => setOpenHurd(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
-            </AdvancedMarker>
+           <AdvancedMarker position={positionHurd} onClick={() => setOpenHurd(true)}>
+          <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
+        </AdvancedMarker>
             <AdvancedMarker position={positionMudd} onClick={() => setOpenMudd(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionPark} onClick={() => setOpenPark(true)}>
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
@@ -112,16 +206,16 @@ export default function ecoMap() {
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionDanforth} onClick={() => setOpenDanforth(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionShanedling} onClick={() => setOpenShanedling(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionDauten} onClick={() => setOpenDauten(true)}>
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionRutledge} onClick={() => setOpenRutledge(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionLee} onClick={() => setOpenLee(true)}>
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
@@ -130,147 +224,117 @@ export default function ecoMap() {
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionUmrath} onClick={() => setOpenUmrath(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionZetcher} onClick={() => setOpenZetcher(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionEliot} onClick={() => setOpenEliot(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionLiggetKoenig} onClick={() => setOpenLiggetKoenig(true)}>
               <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionDardick} onClick={() => setOpenDardick(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionNemerov} onClick={() => setOpenNemerov(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
             <AdvancedMarker position={positionLien} onClick={() => setOpenLien(true)}>
-              <Pin background={"#605DE9"} borderColor={"black"} glyphColor={"white"} />
+              <Pin background={markerColor} borderColor={"black"} glyphColor={"white"} />
             </AdvancedMarker>
 
             {openHurd && (
             <InfoWindow position={positionHurd} onCloseClick={() => setOpenHurd(false)}>
-              <p>Hurd House</p>
-              <button onClick={() => console.log("hi")}>Click me!</button>
+              <p style={{ color: 'blue' }}>Hurd House<br/>Recycles</p>
             </InfoWindow>)}
             {openMudd && (
             <InfoWindow position={positionMudd} onCloseClick={() => setOpenMudd(false)}>
-              <p>Mudd House</p>
-              <button onClick={() => console.log("hi")}>Click me!</button>
+              <p style={{ color: 'blue' }}>Mudd House<br/>Recycles</p>
             </InfoWindow>)}
             {openPark && (
             <InfoWindow position={positionPark} onCloseClick={() => setOpenPark(false)}>
-              <p>Park House</p>
-              <button onClick={() => console.log("hi")}>Click me!</button>
+              <p style={{ color: 'blue' }}>Park House<br/>No Recycling</p>
             </InfoWindow>
           )}
           {openWheeler && (
             <InfoWindow position={positionWheeler} onCloseClick={() => setOpenWheeler(false)}>
-              <p>Wheeler House</p>
-              <button onClick={() => console.log("hi")}>Click me!</button>
+              <p style={{ color: 'blue' }}>Wheeler House<br/>No Recycling</p>
             </InfoWindow>
           )}
           {openDanforth && (
             <InfoWindow position={positionDanforth} onCloseClick={() => setOpenDanforth(false)}>
-              <p>Danforth House</p>
-              <button onClick={() => console.log("hi")}>Click me!</button>
+              <p style={{ color: 'blue' }}>Danforth House<br/>Recycles</p>
             </InfoWindow>
           )}
           {openShanedling && (
           <InfoWindow position={positionShanedling} onCloseClick={() => setOpenShanedling(false)}>
-            <p>Shanedling House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Shanedling House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openDauten && (
           <InfoWindow position={positionDauten} onCloseClick={() => setOpenDauten(false)}>
-            <p>Dauten House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Dauten House<br/>No Recycling</p>
           </InfoWindow>
         )}
         {openRutledge && (
           <InfoWindow position={positionRutledge} onCloseClick={() => setOpenRutledge(false)}>
-            <p>Rutledge House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Rutledge House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openLee && (
           <InfoWindow position={positionLee} onCloseClick={() => setOpenLee(false)}>
-            <p>Lee House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Lee House<br/>No Recycling</p>
           </InfoWindow>
         )}
         {openBeaumont && (
           <InfoWindow position={positionBeaumont} onCloseClick={() => setOpenBeaumont(false)}>
-            <p>Beaumont House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Beaumont House<br/>No Recycling</p>
           </InfoWindow>
         )}
         {openUmrath && (
           <InfoWindow position={positionUmrath} onCloseClick={() => setOpenUmrath(false)}>
-            <p>Umrath House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Umrath House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openZetcher && (
           <InfoWindow position={positionZetcher} onCloseClick={() => setOpenZetcher(false)}>
-            <p>Zetcher House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Zetcher House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openEliot && (
           <InfoWindow position={positionEliot} onCloseClick={() => setOpenEliot(false)}>
-            <p>Eliot House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Eliot House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openLiggetKoenig && (
           <InfoWindow position={positionLiggetKoenig} onCloseClick={() => setOpenLiggetKoenig(false)}>
-            <p>Ligget Koenig House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Ligget Koenig House<br/>No Recycling</p>
           </InfoWindow>
         )}
         {openDardick && (
           <InfoWindow position={positionDardick} onCloseClick={() => setOpenDardick(false)}>
-            <p>Dardick House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Dardick House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openNemerov && (
           <InfoWindow position={positionNemerov} onCloseClick={() => setOpenNemerov(false)}>
-            <p>Nemerov House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Nemerov House<br/>Recycles</p>
           </InfoWindow>
         )}
         {openLien && (
           <InfoWindow position={positionLien} onCloseClick={() => setOpenLien(false)}>
-            <p>Lien House</p>
-            <button onClick={() => console.log("hi")}>Click me!</button>
+            <p style={{ color: 'blue' }}>Lien House<br/>Recycles</p>
           </InfoWindow>
         )}
-
-
+            {/* <LocationReviews locations={data} /> */}
           </Map>
         </div>
       </div>
     </APIProvider>
   );
 }
-
-// function Map2(){
-//     const center = useMemo (() => ({lat:43.45, lng: -80.49}), []);
-//     const [selected, setSelected] = useState(null);
-// }
-
-// <div className="places-container">
-//         <PlacesAutoComplete setSelected = {setSelected} />
-//       </div>
-//       <GoogleMap>       
-//          {selected && <Marker position={selected}/>} 
-//       </GoogleMap>
 
 const PlacesAutoComplete = ({ setSelected }) => {
     const {
@@ -307,7 +371,61 @@ const PlacesAutoComplete = ({ setSelected }) => {
     );
 };
 
-// const {isLoaded} = useLoadScript({
-//     googleMapsApiKey: "AIzaSyAxNlMVrV_zj4HFuApQUhDWg9q39jJsjLY",
-//     libraries: ["places"],
-// });
+  function CommentDisplay({ comments }) {
+    return (
+        <div className='w-100 vh-100 d-flex justify-content-center align-items-center '>
+            <div className='w-50'>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th style={{ paddingRight: '150px' }}>User</th>
+                            <th style={{ paddingRight: '150px' }}>Reply To ReviewID#</th>
+                            <th style={{ paddingRight: '85px' }}>Text</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {comments.map(comment => (
+                            <tr key={comment._id}>
+                                <td style={{ paddingRight: '150px' }}>{comment.user}</td>
+                                <td style={{ paddingRight: '150px' }}>{comment.postTo}</td>
+                                <td style={{ paddingRight: '85px' }}>{comment.text}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+
+function LocationReviews({ locations }) {
+    return (
+        <div className='w-100 vh-100 d-flex justify-contentcenter-center align-items-center '>
+            <div className='w-50'>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th style={{ paddingRight: '150px' }}>ID#</th>
+                            <th style={{ paddingRight: '150px' }}>User</th>
+                            <th style={{ paddingRight: '150px' }}>Place</th>
+                            <th style={{ paddingRight: '40px' }}>Score</th>
+                            <th style={{ paddingRight: '85px' }}>Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {locations.map(location => (
+                            <tr key={location._id}>
+                                <td style={{ paddingRight: '150px' }}>{location._id}</td>
+                                <td style={{ paddingRight: '150px' }}>{location.reviewer}</td>
+                                <td style={{ paddingRight: '150px' }}>{location.name}</td>
+                                <td style={{ paddingRight: '40px' }}>{location.Score}/5</td>
+                                <td style={{ paddingRight: '85px' }}>{location.Review}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
